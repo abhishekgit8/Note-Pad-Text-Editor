@@ -1,0 +1,7 @@
+/backend/__pycache__
+/backend/venv
+/backend/.env
+
+/frontend/notes-app/.env
+/frontend/notes-app/.env.local
+/frontend/notes-app/node_modules
