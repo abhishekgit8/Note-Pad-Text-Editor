@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-gray-100 flex justify-center py-10">
+  <div class="w-full max-w-4xl space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800">Notes</h1>
+      <span class="text-sm text-gray-500">{{ currentTime() }}</span>
+    </div>
+
+    <!-- Add Note -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-700">Add New Note</h2>
+
+      <input
+        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        placeholder="Title"
+        [(ngModel)]="newNote.title"
+      />
+
+      <textarea
+        class="w-full min-h-[120px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        placeholder="Write your note..."
+        [(ngModel)]="newNote.content">
+      </textarea>
+
+      <div class="flex flex-wrap gap-3">
+        <input
+          type="number"
+          class="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Priority"
+          [(ngModel)]="newNote.priority"
+        />
+
+        <select
+          class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          [(ngModel)]="newNote.status">
+          <option value="active">Active</option>
+          <option value="hold">Hold</option>
+          <option value="finished">Finished</option>
+        </select>
+
+        <input
+          type="datetime-local"
+          class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          [(ngModel)]="newNote.reminder_time"
+        />
+      </div>
+
+      <button
+        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        (click)="addNote()">
+        Add Note
+      </button>
+    </div>
+
+    <!-- Notes -->
+    <div class="space-y-4">
+      <h2 class="text-lg font-semibold text-gray-700">Your Notes</h2>
+
+      <div
+        *ngFor="let note of notes"
+        class="bg-white rounded-xl shadow p-5 space-y-3"
+        [ngClass]="{ 'opacity-60 line-through': note.status === 'finished' }">
+
+        <input
+          class="w-full font-semibold text-gray-800 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          [(ngModel)]="note.title"
+          (input)="onEdit(note)"
+        />
+
+        <textarea
+          class="w-full min-h-[100px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          [(ngModel)]="note.content"
+          (input)="onEdit(note)">
+        </textarea>
+
+        <div class="flex flex-wrap gap-3 items-center">
+          <input
+            type="number"
+            class="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            [(ngModel)]="note.priority"
+            (input)="onEdit(note)"
+          />
+
+          <select
+            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            [(ngModel)]="note.status"
+            (change)="onEdit(note)">
+            <option value="active">Active</option>
+            <option value="hold">Hold</option>
+            <option value="finished">Finished</option>
+          </select>
+
+          <input
+            type="datetime-local"
+            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            [(ngModel)]="note.reminder_time"
+            (change)="onEdit(note)"
+          />
+
+          <button
+            class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm text-white hover:bg-red-600"
+            (click)="deleteNote(note.id!)">
+            Delete
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
