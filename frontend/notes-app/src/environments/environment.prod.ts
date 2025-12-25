@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://notes-backend.onrender.com',
-    wsUrl: 'wss://notes-backend.onrender.com'
+    apiUrl: 'https://note-pad-text-editor.onrender.com',
+    wsUrl: 'wss://note-pad-text-editor.onrender.com'
 };
