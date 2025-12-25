@@ -36,6 +36,7 @@ origins = [
     "https://note-kanban-m28kpy6ne-abhisheks-projects-08f6a222.vercel.app",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "https://note-kanban-abhisheks-projects-08f6a222.vercel.app"
 ]
 app.add_middleware(
     CORSMiddleware,
