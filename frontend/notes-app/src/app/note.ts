@@ -4,5 +4,7 @@ export interface Note {
   content: string;
   priority: number;
   status: 'active' | 'hold' | 'finished';
-  reminder_time?: string;
+  reminder_time?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }

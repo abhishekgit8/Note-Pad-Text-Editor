@@ -1,0 +1,12 @@
+# Example Render service definition. Replace placeholder values with your repo and settings.
+services:
+  - type: web
+    name: notes-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    branch: main
+    plan: free
+    # For environment variables, set them in Render dashboard or use a render.yaml secret resource
+
+# Note: You can deploy this service by connecting your GitHub repo to Render and selecting this directory.
+# For non-docker deployments, set 'env: python' and provide build/start commands instead.

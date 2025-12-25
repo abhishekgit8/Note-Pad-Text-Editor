@@ -1,110 +1,166 @@
-<div class="min-h-screen bg-gray-100 flex justify-center py-10">
-  <div class="w-full max-w-4xl space-y-6">
-
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-800">Notes</h1>
-      <span class="text-sm text-gray-500">{{ currentTime() }}</span>
+<div class="min-h-screen bg-gray-50 text-gray-900 py-8">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold">Notes</h1>
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-gray-500">{{ currentTime() }}</span>
+        <button (click)="openAdd()" class="px-4 py-2 bg-black text-white rounded hover:opacity-90">Add Note</button>
+      </div>
     </div>
 
-    <!-- Add Note -->
-    <div class="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 class="text-lg font-semibold text-gray-700">Add New Note</h2>
+    <!-- Board -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      <input
-        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        placeholder="Title"
-        [(ngModel)]="newNote.title"
-      />
-
-      <textarea
-        class="w-full min-h-[120px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        placeholder="Write your note..."
-        [(ngModel)]="newNote.content">
-      </textarea>
-
-      <div class="flex flex-wrap gap-3">
-        <input
-          type="number"
-          class="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Priority"
-          [(ngModel)]="newNote.priority"
-        />
-
-        <select
-          class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          [(ngModel)]="newNote.status">
-          <option value="active">Active</option>
-          <option value="hold">Hold</option>
-          <option value="finished">Finished</option>
-        </select>
-
-        <input
-          type="datetime-local"
-          class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          [(ngModel)]="newNote.reminder_time"
-        />
+      <div class="bg-gray-100 rounded p-4" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'active')">
+        <h2 class="font-semibold mb-4">Active</h2>
+        <div class="space-y-3">
+          <div *ngFor="let note of inStatus('active')" draggable="true" (dragstart)="onDragStart($event, note.id)"
+               class="bg-white rounded shadow p-4 cursor-grab hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-medium">{{ note.title }}</div>
+                <div class="text-sm text-gray-500">{{ note.reminder_time ? (remaining(note) + ' • ' + (note.reminder_time | date:'short')) : '' }}</div>
+              </div>
+              <div class="text-xs text-gray-400">#{{ note.priority }}</div>
+            </div>
+            <p class="mt-2 text-sm text-gray-700">{{ note.content }}</p>
+            <div class="mt-3 flex justify-between items-center">
+              <div class="text-xs text-gray-500">{{ note.status }}</div>
+              <div class="flex gap-2">
+                <button class="text-xs px-2 py-1 bg-gray-900 text-white rounded" (click)="openView(note)" [disabled]="deleting">View</button>
+                <button class="text-xs px-2 py-1 bg-red-600 text-white rounded flex items-center gap-2" (click)="deleteNote(note.id)" [disabled]="deleting && deletingId===note.id">
+                  <svg *ngIf="deleting && deletingId===note.id" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  <span *ngIf="!(deleting && deletingId===note.id)">Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <button
-        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        (click)="addNote()">
-        Add Note
-      </button>
+      <div class="bg-gray-100 rounded p-4" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'hold')">
+        <h2 class="font-semibold mb-4">Hold</h2>
+        <div class="space-y-3">
+          <div *ngFor="let note of inStatus('hold')" draggable="true" (dragstart)="onDragStart($event, note.id)"
+               class="bg-white rounded shadow p-4 cursor-grab hover:shadow-md">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-medium">{{ note.title }}</div>
+                <div class="text-sm text-gray-500">{{ note.reminder_time ? (remaining(note) + ' • ' + (note.reminder_time | date:'short')) : '' }}</div>
+              </div>
+              <div class="text-xs text-gray-400">#{{ note.priority }}</div>
+            </div>
+            <p class="mt-2 text-sm text-gray-700">{{ note.content }}</p>
+            <div class="mt-3 flex justify-between items-center">
+              <div class="text-xs text-gray-500">{{ note.status }}</div>
+              <div class="flex gap-2">
+                <button class="text-xs px-2 py-1 bg-gray-900 text-white rounded" (click)="openView(note)" [disabled]="deleting">View</button>
+                <button class="text-xs px-2 py-1 bg-red-600 text-white rounded flex items-center gap-2" (click)="deleteNote(note.id)" [disabled]="deleting && deletingId===note.id">
+                  <svg *ngIf="deleting && deletingId===note.id" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  <span *ngIf="!(deleting && deletingId===note.id)">Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-100 rounded p-4" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'finished')">
+        <h2 class="font-semibold mb-4">Finished</h2>
+        <div class="space-y-3">
+          <div *ngFor="let note of inStatus('finished')" draggable="true" (dragstart)="onDragStart($event, note.id)"
+               class="bg-white rounded shadow p-4 cursor-grab hover:shadow-md opacity-60 line-through">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-medium">{{ note.title }}</div>
+                <div class="text-sm text-gray-500">{{ note.reminder_time ? (remaining(note) + ' • ' + (note.reminder_time | date:'short')) : '' }}</div>
+              </div>
+              <div class="text-xs text-gray-400">#{{ note.priority }}</div>
+            </div>
+            <p class="mt-2 text-sm text-gray-700">{{ note.content }}</p>
+            <div class="mt-3 flex justify-between items-center">
+              <div class="text-xs text-gray-500">{{ note.status }}</div>
+              <div class="flex gap-2">
+                <button class="text-xs px-2 py-1 bg-gray-900 text-white rounded" (click)="openView(note)" [disabled]="deleting">View</button>
+                <button class="text-xs px-2 py-1 bg-red-600 text-white rounded flex items-center gap-2" (click)="deleteNote(note.id)" [disabled]="deleting && deletingId===note.id">
+                  <svg *ngIf="deleting && deletingId===note.id" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  <span *ngIf="!(deleting && deletingId===note.id)">Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Notes -->
-    <div class="space-y-4">
-      <h2 class="text-lg font-semibold text-gray-700">Your Notes</h2>
-
-      <div
-        *ngFor="let note of notes"
-        class="bg-white rounded-xl shadow p-5 space-y-3"
-        [ngClass]="{ 'opacity-60 line-through': note.status === 'finished' }">
-
-        <input
-          class="w-full font-semibold text-gray-800 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          [(ngModel)]="note.title"
-          (input)="onEdit(note)"
-        />
-
-        <textarea
-          class="w-full min-h-[100px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          [(ngModel)]="note.content"
-          (input)="onEdit(note)">
-        </textarea>
-
-        <div class="flex flex-wrap gap-3 items-center">
-          <input
-            type="number"
-            class="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            [(ngModel)]="note.priority"
-            (input)="onEdit(note)"
-          />
-
-          <select
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            [(ngModel)]="note.status"
-            (change)="onEdit(note)">
+    <!-- Add Modal -->
+    <div *ngIf="showAdd" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+      <div class="bg-white rounded-md shadow-md w-full max-w-lg p-6 text-black">
+        <h3 class="font-bold mb-4">Add Note</h3>
+        <input placeholder="Title" [(ngModel)]="newNote.title" class="w-full mb-3 p-2 border rounded" />
+        <textarea placeholder="Content" [(ngModel)]="newNote.content" class="w-full mb-3 p-2 border rounded"></textarea>
+        <div class="flex gap-3 mb-3">
+          <input type="number" [(ngModel)]="newNote.priority" class="p-2 border rounded w-24" />
+          <select [(ngModel)]="newNote.status" class="p-2 border rounded">
             <option value="active">Active</option>
             <option value="hold">Hold</option>
             <option value="finished">Finished</option>
           </select>
-
-          <input
-            type="datetime-local"
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            [(ngModel)]="note.reminder_time"
-            (change)="onEdit(note)"
-          />
-
-          <button
-            class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm text-white hover:bg-red-600"
-            (click)="deleteNote(note.id!)">
-            Delete
+          <input type="datetime-local" [(ngModel)]="newNote.reminder_time" class="p-2 border rounded" />
+        </div>
+        <div class="flex justify-end gap-3">
+          <button class="px-4 py-2 bg-gray-300 rounded" (click)="closeAdd()" [disabled]="adding">Cancel</button>
+          <button class="px-4 py-2 bg-black text-white rounded flex items-center gap-2" (click)="submitAdd()" [disabled]="adding">
+            <svg *ngIf="adding" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span *ngIf="!adding">Add</span>
           </button>
         </div>
+      </div>
+    </div>
 
+    <!-- View Modal -->
+    <div *ngIf="showView && viewing" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+      <div class="bg-white rounded-md shadow-md w-full max-w-lg p-6 text-black">
+        <h3 class="font-bold mb-4">Note</h3>
+        <input placeholder="Title" [(ngModel)]="viewing.title" class="w-full mb-3 p-2 border rounded" />
+        <textarea placeholder="Content" [(ngModel)]="viewing.content" class="w-full mb-3 p-2 border rounded"></textarea>
+        <div class="flex gap-3 mb-3">
+          <input type="number" [(ngModel)]="viewing.priority" class="p-2 border rounded w-24" />
+          <select [(ngModel)]="viewing.status" class="p-2 border rounded">
+            <option value="active">Active</option>
+            <option value="hold">Hold</option>
+            <option value="finished">Finished</option>
+          </select>
+          <input type="datetime-local" [(ngModel)]="viewing.reminder_time" class="p-2 border rounded" />
+        </div>
+        <div class="flex justify-between">
+          <div>
+            <button class="px-4 py-2 bg-red-600 text-white rounded flex items-center gap-2" (click)="deleteNote(viewing.id)" [disabled]="deleting && deletingId===viewing.id">
+              <svg *ngIf="deleting && deletingId===viewing.id" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              <span *ngIf="!(deleting && deletingId===viewing.id)">Delete</span>
+            </button>
+          </div>
+          <div class="flex gap-3">
+            <button class="px-4 py-2 bg-gray-300 rounded" (click)="closeView()" [disabled]="deleting && deletingId===viewing.id">Cancel</button>
+            <button class="px-4 py-2 bg-black text-white rounded" (click)="saveView()" [disabled]="deleting && deletingId===viewing.id">Save</button>
+          </div>
+        </div>
       </div>
     </div>
 
