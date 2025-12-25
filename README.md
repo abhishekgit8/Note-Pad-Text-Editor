@@ -21,7 +21,7 @@ A modern, real-time note-taking application featuring a Kanban-style board, live
 
 ### Backend
 - **Framework**: FastAPI (Python)
-- **Database**: SQLite (Development) / PostgreSQL (Production ready)
+- **Database**: Supabase
 - **ORM**: SQLAlchemy
 - **Real-time**: FastAPI WebSockets
 
