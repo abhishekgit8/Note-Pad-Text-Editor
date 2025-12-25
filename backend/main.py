@@ -33,6 +33,7 @@ app = FastAPI()
 
 # Configure CORS for development (allow frontend origin)
 origins = [
+    "https://note-kanban-m28kpy6ne-abhisheks-projects-08f6a222.vercel.app/",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
 ]
